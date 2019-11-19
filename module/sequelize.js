@@ -29,6 +29,12 @@ const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, pr
 const Product = ProductModel(sequelize, Sequelize);
 
 
+// Sync with database
+sequelize.sync()
+  .then(() => {
+  });
+
+
 // Export models
 module.exports = {
   Product

@@ -5,7 +5,8 @@ module.exports = (sequelize, type) => {
       primaryKey: true,
       autoIncrement: true
     },
-    base_price: type.NUMERIC,
+    product_code: type.STRING,
+    original_price: type.NUMERIC,
     current_price: type.NUMERIC,
   })
 };
