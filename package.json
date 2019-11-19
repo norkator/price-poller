@@ -24,6 +24,7 @@
     "pg": "7.12.1",
     "sequelize": "6.0.0",
     "pgtools": "0.3.0",
-    "request-promise": "4.2.4"
+    "request-promise": "4.2.4",
+    "nodemailer": "6.2.1"
   }
 }
