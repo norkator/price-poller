@@ -44,7 +44,7 @@ exports.GetLatestPrice = function (sequelizeObjects) {
                 reject(error);
               });
             } else {
-              resolve('Product ' + process.env.PRODUCT_CODE + ' no change in price')
+              resolve('Product ' + process.env.PRODUCT_CODE + ' no change in price ' + price)
             }
           }
 

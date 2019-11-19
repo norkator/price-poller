@@ -12,22 +12,22 @@ exports.SendEmail = function (productUrl, basePrice, newPrice) {
 async function main(productUrl, basePrice, newPrice) {
   console.log('Executing mail send');
   let transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST, // hostname
+    host: String(process.env.EMAIL_HOST), // hostname
     secureConnection: false, // TLS requires secureConnection to be false
-    port: process.env.EMAIL_PORT, // port for secure SMTP
+    port: Number(process.env.EMAIL_PORT), // port for secure SMTP
     tls: {
       ciphers: 'SSLv3'
     },
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
+      user: String(process.env.EMAIL_USER),
+      pass: String(process.env.EMAIL_PASSWORD)
     }
   });
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: '"Price Poller" <' + process.env.EMAIL_USER + '>', // sender address
+    from: '"Price Poller" <' + String(process.env.EMAIL_USER) + '>', // sender address
     to: process.env.EMAIL_TO_ADDRESS,
-    subject: "Product price changed!", // Subject line
+    subject: process.env.PRODUCT_CODE + " price change to " + newPrice, // Subject line
     text: productUrl + ' has new price ' + newPrice + ' base price was ' + basePrice, // plain text body
     // html: "<b>Hello world?</b>" // html body
   });
