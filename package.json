@@ -1,0 +1,27 @@
+{
+  "name": "pricepoller",
+  "version": "1.0.0",
+  "description": "Poll product price and notify for product price changes",
+  "main": "poller.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/norkator/Price-Poller.git"
+  },
+  "author": "Norkator",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/norkator/Price-Poller/issues"
+  },
+  "homepage": "https://github.com/norkator/Price-Poller#readme",
+  "dependencies": {
+    "dotenv": "8.2.0",
+    "cheerio": "1.0.0-rc.3",
+    "node-schedule": "1.3.2",
+    "pg": "7.12.1",
+    "sequelize": "6.0.0",
+    "request-promise": "4.2.4"
+  }
+}
