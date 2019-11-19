@@ -21,4 +21,3 @@ exports.GetLatestPrice = function (sequelizeObjects) {
       console.log(err);
     });
 };
-exports.GetLatestPrice = GetLatestPrice;

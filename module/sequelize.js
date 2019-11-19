@@ -1,5 +1,4 @@
 // Components
-const config = require('../config');
 const Sequelize = require('sequelize');
 const dotenv = require('dotenv');
 dotenv.config();

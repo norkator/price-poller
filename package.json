@@ -17,11 +17,13 @@
   },
   "homepage": "https://github.com/norkator/Price-Poller#readme",
   "dependencies": {
+    "request": "2.88.0",
     "dotenv": "8.2.0",
     "cheerio": "1.0.0-rc.3",
     "node-schedule": "1.3.2",
     "pg": "7.12.1",
     "sequelize": "6.0.0",
+    "pgtools": "0.3.0",
     "request-promise": "4.2.4"
   }
 }
