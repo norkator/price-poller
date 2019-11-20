@@ -19,7 +19,7 @@ initDb.initDatabase().then(() => {
   });
 
   // Register scheduled tasks
-  schedule.scheduleJob('* * 2 * * *', () => { // Every 2 hours
+  schedule.scheduleJob('* * 1 * * *', () => { // Every 1 hours
     poller.GetLatestPrice(sequelizeObjects).then(result => {
       console.log(result);
     }).catch(error => {
