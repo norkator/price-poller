@@ -1,7 +1,8 @@
 # Price-Poller
 
 Product price poller, email notifications when price is lower than latest lower value.
-Currently only supports Finland's Verkkokauppa online store and one product.
+Currently only supports Finland's Verkkokauppa online store and one product at the time 
+but any product from this website.
 I am only interested in one product at the moment and made this for that use to see price changes.
 
 If you want and need support for multiple products or website, you are free to contribute. 
@@ -22,7 +23,7 @@ Steps to get development environment running
 ### Environment file config
 * `DB_DIALECT` choose your database. Examples in template. Fill rest of the db details.
 * `PRODUCT_CODE` target website has product codes like '36712' this is unique string in database.
-* `PRODUCT_URL` url to website, example: https://www.verkkokauppa.com/fi/product/36712/kjsdn/Samsung-C34J791-34-naytto
+* `PRODUCT_URL` url to specific product, example url: https://www.verkkokauppa.com/fi/product/36712/kjsdn/Samsung-C34J791-34-naytto
 * `EMAIL_HOST` smtp mail host server.
 * `EMAIL_USER` origin from where email is sent from.
 * `EMAIL_TO_ADDRESS` destination where email is going to.
