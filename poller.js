@@ -12,7 +12,7 @@ dotenv.config();
 initDb.initDatabase().then(() => {
   let sequelizeObjects = require('./module/sequelize');
 
-  poller.GetLatestPrice(sequelizeObjects).then(result => {
+  poller.GetLatestPrices(sequelizeObjects).then(result => {
     console.log(result);
   }).catch(error => {
     console.log(error);
@@ -20,7 +20,7 @@ initDb.initDatabase().then(() => {
 
   // Register scheduled tasks
   schedule.scheduleJob('* * 1 * * *', () => { // Every 1 hours
-    poller.GetLatestPrice(sequelizeObjects).then(result => {
+    poller.GetLatestPrices(sequelizeObjects).then(result => {
       console.log(result);
     }).catch(error => {
       console.log(error);

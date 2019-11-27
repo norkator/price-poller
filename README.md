@@ -1,11 +1,11 @@
 # Price-Poller
 
-Product price poller, email notifications when price is lower than latest lower value.
-Currently only supports Finland's Verkkokauppa online store and one product at the time 
-but any product from this website.
-I am only interested in one product at the moment and made this for that use to see price changes.
+Product price poller, email notifications when price is lower than latest value.
+Currently only supports Finland's `Verkkokauppa.com` online store and any product from this website.
+You only need product code inserted in database product_code field. You can track as many as you want. 
+Product code's can be found from Verkkokauppa link and description, example: `63109`
 
-If you want and need support for multiple products or website, you are free to contribute. 
+If you want and need support for multiple online stores, you are free to contribute on this repo. 
 I review and merge pull requests coming from new branches. 
  
  
@@ -16,14 +16,18 @@ Steps to get development environment running
 1. Choose your database platform. I use postgresql. See Sequelize dialects for support. 
 2. Run `npm install`
 3. Configure `.env` via renaming from template `.env_tpl`
-4. Run using PM2 process manager or any other `pm2 start poller.js`
-5. Done!
+4. Run `sudo node poller.js` once so that database and table is created.
+5. Insert your `product_code` (one or more) to products table.
+6. Run using PM2 process manager or any other `pm2 start poller.js`
+7. Done!
+
+New product as first run time, app will fill base price, product name etc automatically.  
+Example product codes: 36712 and 63109
 
 
 ### Environment file config
 * `DB_DIALECT` choose your database. Examples in template. Fill rest of the db details.
-* `PRODUCT_CODE` target website has product codes like '36712' this is unique string in database.
-* `PRODUCT_URL` url to specific product, example url: https://www.verkkokauppa.com/fi/product/36712/kjsdn/Samsung-C34J791-34-naytto
+* `STORE_URL` url to web store, example url: https://www.verkkokauppa.com/fi/product/
 * `EMAIL_HOST` smtp mail host server.
 * `EMAIL_USER` origin from where email is sent from.
 * `EMAIL_TO_ADDRESS` destination where email is going to.

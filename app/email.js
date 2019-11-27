@@ -4,12 +4,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 
-exports.SendEmail = function (productUrl, basePrice, newPrice) {
-  main(productUrl, basePrice, newPrice)
+exports.SendEmail = function (productUrlFull, productName, basePrice, newPrice) {
+  main(productUrlFull, productName, basePrice, newPrice)
     .catch(console.error);
 };
 
-async function main(productUrl, basePrice, newPrice) {
+async function main(productUrlFull, productName, basePrice, newPrice) {
   console.log('Executing mail send');
   let transporter = nodemailer.createTransport({
     host: String(process.env.EMAIL_HOST), // hostname
@@ -27,8 +27,8 @@ async function main(productUrl, basePrice, newPrice) {
   let info = await transporter.sendMail({
     from: '"Price Poller" <' + String(process.env.EMAIL_USER) + '>', // sender address
     to: process.env.EMAIL_TO_ADDRESS,
-    subject: process.env.PRODUCT_CODE + " price change to " + newPrice, // Subject line
-    text: productUrl + ' has new price ' + newPrice + ' base price was ' + basePrice, // plain text body
+    subject: productName + " price change to " + newPrice, // Subject line
+    text: productUrlFull + ' has new price ' + newPrice + ' base price was ' + basePrice, // plain text body
     // html: "<b>Hello world?</b>" // html body
   });
   console.log("Message sent: %s", info.messageId);

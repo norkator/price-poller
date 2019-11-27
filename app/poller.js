@@ -10,46 +10,80 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 
-exports.GetLatestPrice = function (sequelizeObjects) {
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
+
+exports.GetLatestPrices = function (sequelizeObjects) {
   return new Promise(function (resolve, reject) {
-    GetProduct(sequelizeObjects, process.env.PRODUCT_CODE).then(product => {
+    GetProducts(sequelizeObjects).then(products => {
 
-      requestPromise(process.env.PRODUCT_URL)
-        .then(function (html) {
+      if (products.length === 0) {
+        logger.log('No products specified on database!', logger.LOG_YELLOW);
+      }
 
-          let price = 0.0;
+      // Handle products
+      // noinspection JSIgnoredPromiseFromCall
+      asyncForEach(products, async (productRaw) => {
 
-          $('div .price-tag__price-tag-content', html).each(function (i, elem) {
-            // console.log(String($('div > div', elem).text()));
-            $('div > div', elem).each(function (i, elem) {
-              if (i === 0) {
-                price = Number(String($(this).text()).replace(',', '.'));
+        let product = productRaw.toJSON();
+
+        if (product.product_code !== null) {
+
+          // Get product page
+          requestPromise(process.env.STORE_URL + product.product_code)
+            .then(function (html) {
+
+
+              let name = GetProductName(html);
+              let price = GetProductPrice(html);
+
+
+              if (product.product_name === null || product.original_price === null || product.current_price === null) {
+
+                InsertOrUpdateProduct(sequelizeObjects, product.product_code, {
+                  product_name: name,
+                  original_price: price,
+                  current_price: price,
+                }).then(() => {
+
+                  logger.log('Product ' + product.product_code + ' first time data update.', logger.LOG_DEFAULT)
+
+                });
+
+              } else {
+                // Has complete data from first run
+                const currentDbPrice = Number(product.current_price);
+                if (price < currentDbPrice) {
+                  InsertOrUpdateProduct(sequelizeObjects, product.product_code, {
+                    current_price: price
+                  }).then(() => {
+
+                    email.SendEmail(process.env.STORE_URL + product.product_code, product.product_name, product.original_price, String(price));
+
+                    logger.log('Product ' + product.product_code + ' entry update', logger.LOG_GREEN);
+
+                  }).catch(error => {
+                    reject(error);
+                  });
+                } else if (price > currentDbPrice) {
+                  logger.log('Product ' + product.product_code + ' has got higher than original.', logger.LOG_DEFAULT)
+                } else {
+                  logger.log('Product ' + product.product_code + ' no change in price ' + price, logger.LOG_DEFAULT)
+                }
+
               }
-            });
+
+            }).catch(function (err) {
+            console.log(err);
           });
 
-          if (product === null) {
-            InsertOrUpdateProduct(sequelizeObjects, process.env.PRODUCT_CODE, price, price).then(() => {
-              resolve('New product ' + process.env.PRODUCT_CODE + ' entry first time insert');
-            }).catch(error => {
-              reject(error);
-            });
-          } else {
-            const currentDbPrice = Number(product.current_price);
-            if (price < currentDbPrice) {
-              InsertOrUpdateProduct(sequelizeObjects, process.env.PRODUCT_CODE, null, price).then(() => {
-                email.SendEmail(process.env.PRODUCT_URL, product.original_price, product.current_price);
-                resolve('Product ' + process.env.PRODUCT_CODE + ' entry update');
-              }).catch(error => {
-                reject(error);
-              });
-            } else {
-              resolve('Product ' + process.env.PRODUCT_CODE + ' no change in price ' + price)
-            }
-          }
-
-        }).catch(function (err) {
-        console.log(err);
+        } else {
+          logger.log('Error! no product code given for product id: ' + product.id + ' cannot check price.', logger.LOG_RED);
+        }
       });
 
     }).catch(error => {
@@ -59,25 +93,68 @@ exports.GetLatestPrice = function (sequelizeObjects) {
 };
 
 
-function GetProduct(sequelizeObjects, productCode) {
+// ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Get all available products from product table
+ * @param sequelizeObjects
+ * @returns {Promise<any>}
+ * @constructor
+ */
+function GetProducts(sequelizeObjects) {
   return new Promise(function (resolve, reject) {
-    sequelizeObjects.Product.findAll({
-      limit: 1,
-      where: {
-        product_code: productCode
-      },
-    }).then(products => {
-      if (products.length > 0) {
-        resolve(products[0].toJSON())
-      } else {
-        resolve(null);
-      }
-    });
+    sequelizeObjects.Product.findAll()
+      .then(products => {
+        resolve(products);
+      });
   });
 }
 
 
-function InsertOrUpdateProduct(sequelizeObjects, productCode, originalPrice, currentPrice) {
+/**
+ * Get product name
+ * @param {String} html
+ * @returns {string}
+ * @constructor
+ */
+function GetProductName(html) {
+  let productName = '';
+  $('.product-header-title', html).each(function (i, elem) {
+    productName = String($(this).text());
+  });
+  return productName;
+}
+
+
+/**
+ * Parse price from product html
+ * @param {String} html
+ * @constructor
+ * @return {number}
+ */
+function GetProductPrice(html) {
+  let price = 0.0;
+  $('div .price-tag__price-tag-content', html).each(function (i, elem) {
+    // console.log(String($('div > div', elem).text()));
+    $('div > div', elem).each(function (i, elem) {
+      if (i === 0) {
+        price = Number(String($(this).text()).replace(',', '.'));
+      }
+    });
+  });
+  return price;
+}
+
+
+/**
+ * Insert or update content
+ * @param {Object} sequelizeObjects
+ * @param {String} productCode
+ * @param {Object} updateJson
+ * @returns {Promise<any>}
+ * @constructor
+ */
+function InsertOrUpdateProduct(sequelizeObjects, productCode, updateJson) {
   return new Promise(function (resolve, reject) {
     sequelizeObjects.Product.findAll({
       limit: 1,
@@ -87,19 +164,13 @@ function InsertOrUpdateProduct(sequelizeObjects, productCode, originalPrice, cur
     }).then(obj => {
       if (obj.length > 0) {
         obj[0].update(
-          {
-            current_price: currentPrice
-          }
+          updateJson
         ).then(() => {
           resolve();
         });
       } else {
         sequelizeObjects.Product.create(
-          {
-            product_code: productCode,
-            original_price: originalPrice,
-            current_price: currentPrice
-          }
+          updateJson
         ).then(() => {
           resolve();
         }).catch(() => {
@@ -110,3 +181,4 @@ function InsertOrUpdateProduct(sequelizeObjects, productCode, originalPrice, cur
   });
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
