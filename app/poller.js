@@ -153,7 +153,7 @@ function GetProductDetails(storeNumber, html) {
         // console.log(String($('div > div', elem).text()));
         $('div > div', elem).each(function (i, elem) {
           if (i === 0) {
-            productDetails.price = Number(String($(this).text()).replace(',', '.'));
+            productDetails.price = Number(String($(this).text()).replace(',', '.').replace(/[^0-9.]/g, ""));
           }
         });
       });
